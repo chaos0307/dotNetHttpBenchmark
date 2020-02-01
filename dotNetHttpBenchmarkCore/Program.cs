@@ -30,13 +30,6 @@ namespace dotNetHttpBenchmarkCore
 
         [Benchmark]
         public void Get_HttpClient() => ExecuteHttpClient(_api + "SampleGet", HttpMethod.Get);
-
-        [Benchmark]
-        public void Post_WebRequest() => ExecuteWebRequest(_api + "SamplePost", string.Empty);
-
-        [Benchmark]
-        public void Post_HttpClient() => ExecuteHttpClient(_api + "SamplePost", HttpMethod.Post);
-
         [Benchmark]
         public void Get_WebClient()
         {
@@ -50,6 +43,20 @@ namespace dotNetHttpBenchmarkCore
             }
         }
         [Benchmark]
+        public void Get_RestSharp()
+        {
+            var restClient = new RestClient(_api + "SampleGet");
+            var getRequest = new RestRequest(Method.GET);
+            var response = restClient.Execute(getRequest);
+        }
+        [Benchmark]
+        public void Post_WebRequest() => ExecuteWebRequest(_api + "SamplePost", string.Empty);
+
+        [Benchmark]
+        public void Post_HttpClient() => ExecuteHttpClient(_api + "SamplePost", HttpMethod.Post);
+
+ 
+        [Benchmark]
         public void Post_WebClient()
         {
             using (var webClient = new WebClient())
@@ -59,13 +66,7 @@ namespace dotNetHttpBenchmarkCore
                 var responseString = UnicodeEncoding.UTF8.GetString(data);
             }
         }
-        [Benchmark]
-        public void Get_RestSharp()
-        {
-            var restClient = new RestClient(_api + "SampleGet");
-            var getRequest = new RestRequest(Method.GET);
-            var response = restClient.Execute(getRequest);
-        }
+       
         [Benchmark]
         public void Post_RestSharp()
         {
