@@ -31,13 +31,13 @@ namespace dotNetHttpBenchmarkCore
         public void Get_WebRequest() => ExecuteWebRequest(_api + "SampleGet", string.Empty, method: "GET");
 
         [Benchmark]
-        public Task Get_HttpClient() => ExecuteHttpClient(_api + "SampleGet", HttpMethod.Get);
+        public Task Get_HttpClientAsync() => ExecuteHttpClient(_api + "SampleGet", HttpMethod.Get);
         [Benchmark]
-        public void Get_WebClient()
+        public async Task Get_WebClientAsync()
         {
             using (var webClient = new WebClient())
             {
-                Stream stream = webClient.OpenRead(_api + "SampleGet");
+                var stream = await webClient.OpenReadTaskAsync(_api + "SampleGet");
                 using (var reader = new StreamReader(stream))
                 {
                     var result = reader.ReadToEnd();
@@ -45,36 +45,36 @@ namespace dotNetHttpBenchmarkCore
             }
         }
         [Benchmark]
-        public void Get_RestSharp()
+        public async Task Get_RestSharpAsync()
         {
             var restClient = new RestClient(_api + "SampleGet");
             var getRequest = new RestRequest(Method.GET);
-            var response = restClient.Execute(getRequest);
+            var response = await restClient.ExecuteAsync(getRequest);
         }
         [Benchmark]
         public void Post_WebRequest() => ExecuteWebRequest(_api + "SamplePost", string.Empty);
 
         [Benchmark]
-        public Task Post_HttpClient() => ExecuteHttpClient(_api + "SamplePost", HttpMethod.Post);
+        public Task Post_HttpClientAsync() => ExecuteHttpClient(_api + "SamplePost", HttpMethod.Post);
 
- 
+
         [Benchmark]
-        public void Post_WebClient()
+        public async Task Post_WebClientAsync()
         {
             using (var webClient = new WebClient())
             {
                 NameValueCollection nameValueCollection = new NameValueCollection();
-                var data = webClient.UploadValues(_api + "SamplePost", "POST", nameValueCollection);
-                var responseString = UnicodeEncoding.UTF8.GetString(data);
+                var response = await webClient.UploadValuesTaskAsync(_api + "SamplePost", "POST", nameValueCollection);
+                var responseString = UnicodeEncoding.UTF8.GetString(response);
             }
         }
-       
+
         [Benchmark]
-        public void Post_RestSharp()
+        public async Task Post_RestSharpAsync()
         {
             var restClient = new RestClient(_api + "SamplePost");
             var getRequest = new RestRequest(Method.POST);
-            var response = restClient.Execute(getRequest);
+            var response = await restClient.ExecuteAsync(getRequest);
         }
         private void ExecuteWebRequest(string pUrl, string pReq, string method = "POST", string contentType = "application/json", int timeout = -1)
         {
