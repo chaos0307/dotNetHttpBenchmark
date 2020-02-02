@@ -18,6 +18,10 @@ namespace SampleApi
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureLogging(logging => 
+                    // Don't need logging for benchmarking client
+                    logging.ClearProviders()
+                )
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
