@@ -117,6 +117,7 @@ namespace dotNetHttpBenchmarkCore
             using (var req = new HttpRequestMessage(httpMethod, pUrl))
             {
                 var httpResponseMessage = await s_client.SendAsync(req);
+                httpResponseMessage.EnsureSuccessStatusCode();
                 var responseString = await httpResponseMessage.Content.ReadAsStringAsync();
             }
         }
