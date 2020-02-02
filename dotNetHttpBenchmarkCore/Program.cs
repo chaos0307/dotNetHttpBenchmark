@@ -7,6 +7,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace dotNetHttpBenchmarkCore
 {
@@ -19,6 +20,7 @@ namespace dotNetHttpBenchmarkCore
     //[StopOnFirstError]
     public class HttpBenchmark
     {
+        private readonly static HttpClient s_client = new HttpClient();
         private string _api;
         public HttpBenchmark()
         {
@@ -29,7 +31,7 @@ namespace dotNetHttpBenchmarkCore
         public void Get_WebRequest() => ExecuteWebRequest(_api + "SampleGet", string.Empty, method: "GET");
 
         [Benchmark]
-        public void Get_HttpClient() => ExecuteHttpClient(_api + "SampleGet", HttpMethod.Get);
+        public Task Get_HttpClient() => ExecuteHttpClient(_api + "SampleGet", HttpMethod.Get);
         [Benchmark]
         public void Get_WebClient()
         {
@@ -53,7 +55,7 @@ namespace dotNetHttpBenchmarkCore
         public void Post_WebRequest() => ExecuteWebRequest(_api + "SamplePost", string.Empty);
 
         [Benchmark]
-        public void Post_HttpClient() => ExecuteHttpClient(_api + "SamplePost", HttpMethod.Post);
+        public Task Post_HttpClient() => ExecuteHttpClient(_api + "SamplePost", HttpMethod.Post);
 
  
         [Benchmark]
@@ -110,15 +112,12 @@ namespace dotNetHttpBenchmarkCore
             }
         }
 
-        private void ExecuteHttpClient(string pUrl, HttpMethod httpMethod)
+        private async Task ExecuteHttpClient(string pUrl, HttpMethod httpMethod)
         {
-            using (var client = new HttpClient())
+            using (var req = new HttpRequestMessage(httpMethod, pUrl))
             {
-                using (var req = new HttpRequestMessage(httpMethod, pUrl))
-                {
-                    var httpResponseMessage = client.SendAsync(req).Result;
-                    var responseString = httpResponseMessage.Content.ReadAsStringAsync().Result;
-                }
+                var httpResponseMessage = await s_client.SendAsync(req);
+                var responseString = await httpResponseMessage.Content.ReadAsStringAsync();
             }
         }
     }
