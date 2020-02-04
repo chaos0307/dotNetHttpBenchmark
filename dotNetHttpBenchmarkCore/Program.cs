@@ -1,6 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
+using Flurl.Http;
 using RestSharp;
 using System.Collections.Specialized;
 using System.IO;
@@ -20,11 +21,13 @@ namespace dotNetHttpBenchmarkCore
     //[StopOnFirstError]
     public class HttpBenchmark
     {
+        private readonly IFlurlClient _flurlClient;
         private readonly static HttpClient s_client = new HttpClient();
         private string _api;
         public HttpBenchmark()
         {
             _api = "http://localhost/SampleApi/";
+            _flurlClient = new FlurlClient();
         }
 
         [Benchmark]
@@ -52,6 +55,13 @@ namespace dotNetHttpBenchmarkCore
             var response = await restClient.ExecuteAsync(getRequest);
         }
         [Benchmark]
+        public async Task Get_FlurlAsync()
+        {
+            var resp = await (_api + "SampleGet").GetAsync();
+            resp.EnsureSuccessStatusCode();
+            var responseString = await resp.Content.ReadAsStringAsync();
+        }
+        [Benchmark]
         public void Post_WebRequest() => ExecuteWebRequest(_api + "SamplePost", string.Empty);
 
         [Benchmark]
@@ -75,6 +85,15 @@ namespace dotNetHttpBenchmarkCore
             var restClient = new RestClient(_api + "SamplePost");
             var getRequest = new RestRequest(Method.POST);
             var response = await restClient.ExecuteAsync(getRequest);
+        }
+
+  
+        [Benchmark]
+        public async Task Post_FlurlAsync()
+        {
+            var resp = await (_api + "SamplePost").PostStringAsync(string.Empty);
+            resp.EnsureSuccessStatusCode();
+            var responseString = await resp.Content.ReadAsStringAsync();
         }
         private void ExecuteWebRequest(string pUrl, string pReq, string method = "POST", string contentType = "application/json", int timeout = -1)
         {
