@@ -11,6 +11,7 @@ Just a simple performance benchmark that I created <em>for fun</em> to compare t
 - HttpClient 
 - WebClient
 - RestSharp
+- Flurl
 
 #### Result
 ``` ini
